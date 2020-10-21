@@ -19,12 +19,12 @@ async fn blog() -> impl Responder {
     // one-off render blog template with context
     let result = Tera::one_off(
         &(std::fs::read_to_string("templates/blog.html")
-            .unwrap_or_else(|_| panic!("Couldn't load blog template."))
+            .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
             .as_str()),
         &context,
         true,
     )
-    .unwrap_or_else(|_| panic!("Couldn't render blog template."));
+    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
     HttpResponse::Ok().body(result)
 }
 
@@ -38,11 +38,11 @@ async fn blog_permalink(web::Path(post_id): web::Path<u32>) -> impl Responder {
     // one-off render blog template with context
     let result = Tera::one_off(
         &(std::fs::read_to_string("templates/blog.html")
-            .unwrap_or_else(|_| panic!("Couldn't load blog template."))
+            .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
             .as_str()),
         &context,
         true,
     )
-    .unwrap_or_else(|_| panic!("Couldn't render blog template."));
+    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
     HttpResponse::Ok().body(result)
 }

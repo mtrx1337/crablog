@@ -8,7 +8,7 @@ use models::*;
 fn establish_connection() -> SqliteConnection {
     let db_path = "db.sqlite3";
     SqliteConnection::establish(&db_path)
-        .unwrap_or_else(|_| panic!("Error connection to {}", &db_path))
+        .unwrap_or_else(|_| panic!("Error, connection to {} failed.", &db_path))
 }
 
 pub fn get_posts() -> std::vec::Vec<Post> {
@@ -16,9 +16,10 @@ pub fn get_posts() -> std::vec::Vec<Post> {
     let connection = establish_connection();
     posts
         .filter(published.eq(true))
+        .order(id.desc())
         .limit(5)
         .load::<Post>(&connection)
-        .expect("Error loading posts")
+        .expect("Error, couldn't load posts.")
 }
 
 pub fn get_post_by_id(id: i32) -> Post {
@@ -27,7 +28,7 @@ pub fn get_post_by_id(id: i32) -> Post {
     posts
         .find(id)
         .get_result(&connection)
-        .expect("Couldn't find post")
+        .expect("Error, couldn't find post")
 }
 
 pub fn add_post(title: &str, body: &str) {
@@ -46,5 +47,5 @@ pub fn add_post(title: &str, body: &str) {
     diesel::insert_into(posts::table)
         .values(&new_post)
         .execute(&connection)
-        .unwrap_or_else(|_| panic!("Error couldn't insert new Post!"));
+        .unwrap_or_else(|_| panic!("Error, couldn't insert new Post."));
 }
