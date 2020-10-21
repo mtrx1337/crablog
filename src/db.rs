@@ -16,6 +16,7 @@ pub fn get_posts() -> std::vec::Vec<Post> {
     let connection = establish_connection();
     posts
         .filter(published.eq(true))
+        .limit(5)
         .load::<Post>(&connection)
         .expect("Error loading posts")
 }
