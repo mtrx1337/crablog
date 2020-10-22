@@ -10,22 +10,25 @@ extern crate tera;
 
 use actix_files as fs;
 use actix_web::{App, HttpServer};
+use config::get_from_env;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
-        let root_path = config::get_from_env("ROOT_PATH", true);
+        let root_path = get_from_env("ROOT_PATH", true);
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
         builder
             .set_private_key_file(
-                config::get_from_env("SSL_PATH", true) + "/key.pem",
+                get_from_env("SSL_PATH", true) + &get_from_env("SSL_PRIV_NAME", true),
                 SslFiletype::PEM,
             )
             .unwrap();
 
         builder
-            .set_certificate_chain_file(config::get_from_env("SSL_PATH", true) + "/cert.pem")
+            .set_certificate_chain_file(
+                get_from_env("SSL_PATH", true) + &get_from_env("SSL_CERT_NAME", true),
+            )
             .unwrap();
 
         App::new()
@@ -37,7 +40,7 @@ async fn main() -> std::io::Result<()> {
             .service(routes::blog_new_post)
             .service(fs::Files::new("/static", root_path + "/static"))
     })
-    .bind(String::from("localhost:") + &config::get_from_env("BIND_PORT", true))?
+    .bind(String::from("localhost:") + &get_from_env("BIND_PORT", true))?
     .run()
     .await
 }
