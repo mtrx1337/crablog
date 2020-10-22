@@ -1,12 +1,14 @@
 mod models;
 mod schema;
 
+use crate::config;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use models::*;
 
 fn establish_connection() -> SqliteConnection {
-    let db_path = "db.sqlite3";
+    let root_path = config::get_from_env("ROOT_PATH", true);
+    let db_path = root_path + "/db.sqlite3";
     SqliteConnection::establish(&db_path)
         .unwrap_or_else(|_| panic!("Error, connection to {} failed.", &db_path))
 }

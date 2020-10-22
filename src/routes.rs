@@ -1,3 +1,4 @@
+use crate::config;
 use crate::db::*;
 
 use actix_files as fs;
@@ -7,11 +8,14 @@ use tera::{Context, Tera};
 
 #[get("/")]
 async fn root() -> impl Responder {
-    fs::NamedFile::open("html/index.html")
+    let root_path = config::get_from_env("ROOT_PATH", true);
+    fs::NamedFile::open(root_path + "/html/index.html")
 }
 
 #[get("/blog")]
 async fn blog() -> impl Responder {
+    let root_path = config::get_from_env("ROOT_PATH", true);
+
     let posts = get_posts();
 
     let mut context = Context::new();
@@ -19,7 +23,7 @@ async fn blog() -> impl Responder {
 
     // one-off render blog template with context
     let result = Tera::one_off(
-        &(std::fs::read_to_string("templates/blog.html")
+        &(std::fs::read_to_string(root_path + "/templates/blog.html")
             .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
             .as_str()),
         &context,
@@ -31,8 +35,9 @@ async fn blog() -> impl Responder {
 
 #[get("/blog/submit")]
 async fn blog_submit() -> impl Responder {
+    let root_path = config::get_from_env("ROOT_PATH", true);
     HttpResponse::Ok().set_header("SameSite", "secure").body(
-        std::fs::read_to_string("html/submit.html")
+        std::fs::read_to_string(root_path + "/html/submit.html")
             .unwrap_or_else(|e| panic!("Error, couldn't load submit html file.\n{}", e)),
     )
 }
@@ -42,6 +47,8 @@ async fn blog_permalink(web::Path(post_id): web::Path<std::string::String>) -> i
     match post_id.parse::<u32>() {
         Err(_) => HttpResponse::new(StatusCode::NOT_FOUND),
         Ok(i) => {
+            let root_path = config::get_from_env("ROOT_PATH", true);
+
             let post = get_post_by_id(i as i32);
 
             let mut context = Context::new();
@@ -49,7 +56,7 @@ async fn blog_permalink(web::Path(post_id): web::Path<std::string::String>) -> i
 
             // one-off render blog template with context
             let result = Tera::one_off(
-                &(std::fs::read_to_string("templates/blog.html")
+                &(std::fs::read_to_string(root_path + "/templates/blog.html")
                     .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
                     .as_str()),
                 &context,
@@ -70,9 +77,7 @@ struct NewPostForm {
 
 #[post("/blog/posts/new")]
 async fn blog_new_post(form: Form<NewPostForm>) -> impl Responder {
-    let token: String = std::env::var("SUBMIT_TOKEN").unwrap_or_else(|_| {
-        panic!("Error, can't authenticate submission if no submit token was set.");
-    });
+    let token = config::get_from_env("SUBMIT_TOKEN", true);
 
     if form.token == token {
         add_post(&form.title.as_str(), &form.body.as_str());
