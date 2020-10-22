@@ -21,5 +21,3 @@ diesel_codegen = { version = "*", default-features = false }
 uuid = { version = "*", features = ["serde", "v5"] }
 
 tera = "*"
-
-openssl = "*"

@@ -11,25 +11,11 @@ extern crate tera;
 use actix_files as fs;
 use actix_web::{App, HttpServer};
 use config::get_from_env;
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         let root_path = get_from_env("ROOT_PATH", true);
-        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-        builder
-            .set_private_key_file(
-                get_from_env("SSL_PATH", true) + &get_from_env("SSL_PRIV_NAME", true),
-                SslFiletype::PEM,
-            )
-            .unwrap();
-
-        builder
-            .set_certificate_chain_file(
-                get_from_env("SSL_PATH", true) + &get_from_env("SSL_CERT_NAME", true),
-            )
-            .unwrap();
 
         App::new()
             //.wrap(middleware::NormalizePath::default())

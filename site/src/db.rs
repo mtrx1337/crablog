@@ -24,11 +24,11 @@ pub fn get_posts() -> std::vec::Vec<Post> {
         .expect("Error, couldn't load posts.")
 }
 
-pub fn get_post_by_id(id: i32) -> Post {
+pub fn get_post_by_id(_id: i32) -> Post {
     use crate::db::schema::posts::dsl::*;
     let connection = establish_connection();
     posts
-        .find(id)
+        .find(_id)
         .get_result(&connection)
         .expect("Error, couldn't find post")
 }
