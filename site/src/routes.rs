@@ -63,7 +63,7 @@ async fn blog_permalink(web::Path(post_id): web::Path<std::string::String>) -> i
                     .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
                     .as_str()),
                 &context,
-                true,
+                false,
             )
             .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
             HttpResponse::Ok().content_type("text/html").body(result)
@@ -82,8 +82,10 @@ struct NewPostForm {
 async fn blog_new_post(form: Form<NewPostForm>) -> impl Responder {
     let token = config::get_from_env("SUBMIT_TOKEN", true);
 
+    let replace_newlines = |x: &String| x.replace("\n", "<br>");
+
     if form.token == token {
-        add_post(&form.title.as_str(), &form.body.as_str());
+        add_post(&form.title.as_str(), replace_newlines(&form.body).as_str());
         println!("New blog post created.");
     } else {
         println!("Unauthorized new blog post");
