@@ -30,7 +30,7 @@ async fn blog() -> impl Responder {
         true,
     )
     .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
-    HttpResponse::Ok().body(result)
+    HttpResponse::Ok().content_type("text/html").body(result)
 }
 
 #[get("/blog/submit")]
@@ -63,7 +63,7 @@ async fn blog_permalink(web::Path(post_id): web::Path<std::string::String>) -> i
                 true,
             )
             .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
-            HttpResponse::Ok().body(result)
+            HttpResponse::Ok().content_type("text/html").body(result)
         }
     }
 }
