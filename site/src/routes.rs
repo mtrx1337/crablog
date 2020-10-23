@@ -27,7 +27,7 @@ async fn blog() -> impl Responder {
             .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
             .as_str()),
         &context,
-        true,
+        false,
     )
     .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
     HttpResponse::Ok().content_type("text/html").body(result)
