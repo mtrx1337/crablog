@@ -36,10 +36,13 @@ async fn blog() -> impl Responder {
 #[get("/blog/submit")]
 async fn blog_submit() -> impl Responder {
     let root_path = config::get_from_env("ROOT_PATH", true);
-    HttpResponse::Ok().set_header("SameSite", "secure").body(
-        std::fs::read_to_string(root_path + "/html/submit.html")
-            .unwrap_or_else(|e| panic!("Error, couldn't load submit html file.\n{}", e)),
-    )
+    HttpResponse::Ok()
+        .content_type("text/html")
+        .set_header("SameSite", "secure")
+        .body(
+            std::fs::read_to_string(root_path + "/html/submit.html")
+                .unwrap_or_else(|e| panic!("Error, couldn't load submit html file.\n{}", e)),
+        )
 }
 
 #[get("/blog/id/{post_id}")]
