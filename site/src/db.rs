@@ -14,7 +14,7 @@ fn establish_connection() -> SqliteConnection {
 }
 
 pub fn get_posts() -> std::vec::Vec<Post> {
-    use crate::db::schema::posts::dsl::*;
+    use schema::posts::dsl::*;
     let connection = establish_connection();
     posts
         .filter(published.eq(true))
@@ -24,16 +24,16 @@ pub fn get_posts() -> std::vec::Vec<Post> {
         .expect("Error, couldn't load posts.")
 }
 
-pub fn get_post_by_id(_id: i32) -> Post {
-    use crate::db::schema::posts::dsl::*;
+pub fn get_post_by_id(post_id: i32) -> Post {
+    use schema::posts::dsl::*;
     let connection = establish_connection();
     posts
-        .find(_id)
+        .find(post_id)
         .get_result(&connection)
-        .expect("Error, couldn't find post")
+        .expect("Error, couldn't find post.")
 }
 
-pub fn add_post(title: &str, body: &str) {
+pub fn create_post(title: &str, body: &str) {
     use chrono::prelude::*;
     use schema::posts;
 
@@ -50,4 +50,35 @@ pub fn add_post(title: &str, body: &str) {
         .values(&new_post)
         .execute(&connection)
         .unwrap_or_else(|_| panic!("Error, couldn't insert new Post."));
+}
+
+pub fn edit_post_by_id(post_id: i32, new_title: &str, new_body: &str) {
+    use schema::posts::dsl::*;
+    let connection = establish_connection();
+
+    diesel::update(posts)
+        .filter(id.eq(post_id))
+        .set((title.eq(new_title), body.eq(new_body)))
+        .execute(&connection)
+        .expect("Error, couldn't update post.");
+}
+
+pub fn delete_post_by_id(post_id: i32) {
+    use schema::posts::dsl::*;
+    let connection = establish_connection();
+
+    diesel::delete(posts.filter(id.eq(post_id)))
+        .execute(&connection)
+        .expect("Error, couldn't update post.");
+}
+
+pub fn hide_post_by_id(post_id: i32) {
+    use schema::posts::dsl::*;
+    let connection = establish_connection();
+
+    diesel::update(posts)
+        .filter(id.eq(post_id))
+        .set(published.eq(false))
+        .execute(&connection)
+        .expect("Error, couldn't update post.");
 }
