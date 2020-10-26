@@ -8,7 +8,6 @@ html {
   padding: 20px;
   width: 60%;
   padding-left: 20%;
-  font-size: 1.5em;
 }
 
 @media (max-width:1080px) {
@@ -17,5 +16,4 @@ html {
     padding: 20px;
     width: 90%;
     padding-left: 5%;
-    font-size: 2em;
 }
