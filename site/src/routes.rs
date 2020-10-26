@@ -26,11 +26,11 @@ pub fn id_valid(post_id: String) -> (bool, i32) {
     }
 }
 
-pub fn replace_newlines(x: &String) -> String {
+pub fn replace_newlines(x: &str) -> String {
     x.replace("\n", "<br>")
 }
 
-pub fn replace_br_tags(x: &String) -> String {
+pub fn replace_br_tags(x: &str) -> String {
     x.replace("<br>", "\n")
 }
 
