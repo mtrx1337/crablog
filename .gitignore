@@ -1,6 +1,3 @@
 target
 .env
-html
-templates
-static
 db.sqlite3

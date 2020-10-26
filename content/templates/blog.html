@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>mtrx' blog</title>
+    <link rel="stylesheet" href="/static/css/blog.css">
+    <link rel="shortcut icon" type="image/jpg" href="/static/favicon.ico"/>
+  </head>
+  <body>
+    <h1><a href="/blog" class="post-link" style="text-decoration:none;color:black;">mtrx' blog</a></h1>
+    <ul>
+      {% for post in posts %}
+      <article>
+        <a href="/blog/id/{{ post.id }}" class="post-link">[link]</a>
+        <div class="post-content">
+          <h2 class="post-title">{{ post.title }}</h2>
+          <sub class="post-publish-date"> {{ post.publish_date }}</sub>
+          <p class="post-body">{{ post.body }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </ul>
+
+    <script>
+      let dates = document.querySelectorAll(".post-publish-date");
+      Array.from(dates).map((d) => d.textContent = `${d.textContent.split("T")[0]} - ${d.textContent.split("T")[1].split(".")[0]}`)
+    </script>
+  </body>
+</html>
