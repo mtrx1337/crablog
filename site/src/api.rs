@@ -92,6 +92,6 @@ async fn blog_hide_post(
 
 #[get("/api/blog/posts")]
 async fn blog_get_posts_json() -> impl Responder {
-    let posts = get_posts();
+    let posts = get_all_posts();
     HttpResponse::Ok().json(posts)
 }
