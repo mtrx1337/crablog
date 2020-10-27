@@ -15,16 +15,11 @@
         <a href="/blog/id/{{ post.id }}" class="post-link">[link]</a>
         <div class="post-content">
           <h2 class="post-title">{{ post.title }}</h2>
-          <sub class="post-publish-date"> {{ post.publish_date }}</sub>
+          <sub class="post-publish-date"> {{ post.publish_date | date(format="%Y-%m-%d at %H:%M") }}</sub>
           <p class="post-body">{{ post.body }}</p>
         </div>
       </article>
       {% endfor %}
     </ul>
-
-    <script>
-      let dates = document.querySelectorAll(".post-publish-date");
-      Array.from(dates).map((d) => d.textContent = `${d.textContent.split("T")[0]} - ${d.textContent.split("T")[1].split(".")[0]}`)
-    </script>
   </body>
 </html>
