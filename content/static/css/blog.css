@@ -10,6 +10,11 @@ html {
   padding-left: 20%;
 }
 
+img {
+  width: 50%;
+  padding: 20px 0px 20px 0px;
+}
+
 article {
   padding-top: 2em;
   display: flex;
