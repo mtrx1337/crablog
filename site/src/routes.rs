@@ -1,7 +1,7 @@
 use crate::config;
 use crate::db;
+use crate::html;
 
-use actix_files as fs;
 use actix_web::{get, http::StatusCode, web, HttpResponse, Responder};
 use tera::{Context, Tera};
 
@@ -45,48 +45,38 @@ pub fn replace_br_tags(x: &str) -> String {
 
 #[get("/")]
 async fn root() -> impl Responder {
-    let root_path = config::get_from_env("ROOT_PATH", true);
-    fs::NamedFile::open(root_path + "/html/index.html")
+    let mut context = Context::new();
+
+    context.insert("username", &config::get_from_env("USERNAME", true));
+    context.insert("email", &config::get_from_env("EMAIL", true));
+
+    let result = Tera::one_off(
+        html::INDEX,
+        &context,
+        false,
+    )
+    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+
+    HttpResponse::Ok().content_type("text/html").body(result)
 }
 
 #[get("/blog")]
 async fn blog() -> impl Responder {
-    let root_path = config::get_from_env("ROOT_PATH", true);
-
     let posts = db::get_last_five_posts();
 
     let mut context = Context::new();
     context.insert("posts", &posts);
+    context.insert("username", &(config::get_from_env("USERNAME", true)));
+    context.insert("sitetitle", &(config::get_from_env("USERNAME", true) + "' blog"));
 
     // one-off render blog template with context
     let result = Tera::one_off(
-        &(std::fs::read_to_string(root_path + "/templates/blog.html")
-            .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
-            .as_str()),
+        html::BLOG,
         &context,
         false,
     )
     .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
-    HttpResponse::Ok().content_type("text/html").body(result)
-}
 
-#[get("/blog/submit")]
-async fn blog_submit() -> impl Responder {
-    let root_path = config::get_from_env("ROOT_PATH", true);
-
-    let mut context = Context::new();
-    context.insert("title", "");
-    context.insert("body", "");
-
-    // one-off render blog template with context
-    let result = Tera::one_off(
-        &(std::fs::read_to_string(root_path + "/templates/post-submit.html")
-            .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
-            .as_str()),
-        &context,
-        false,
-    )
-    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
     HttpResponse::Ok().content_type("text/html").body(result)
 }
 
@@ -94,40 +84,53 @@ async fn blog_submit() -> impl Responder {
 async fn blog_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl Responder {
     let (valid, id) = id_valid(post_id);
     if valid {
-        let root_path = config::get_from_env("ROOT_PATH", true);
-
         let post = db::get_post_by_id(id as i32);
 
         let mut context = Context::new();
-        context.insert("posts", &[post]);
+        context.insert("posts", &[&post]);
+        context.insert("username", &(config::get_from_env("USERNAME", true)));
+        context.insert("sitetitle", &post.title);
 
         // one-off render blog template with context
         let result = Tera::one_off(
-            &(std::fs::read_to_string(root_path + "/templates/blog.html")
-                .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
-                .as_str()),
+            html::BLOG,
             &context,
             false,
         )
         .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+
         return HttpResponse::Ok().content_type("text/html").body(result);
     } else {
         return HttpResponse::new(StatusCode::NOT_FOUND);
     }
 }
 
-#[get("/blog/edit")]
-async fn blog_edit() -> impl Responder {
-    let root_path = config::get_from_env("ROOT_PATH", true);
-
+#[get("/blog/submit")]
+async fn blog_submit() -> impl Responder {
     let mut context = Context::new();
-    context.insert("posts", &db::get_all_posts());
+    context.insert("title", "");
+    context.insert("body", "");
 
     // one-off render blog template with context
     let result = Tera::one_off(
-        &(std::fs::read_to_string(root_path + "/templates/edit.html")
-            .unwrap_or_else(|e| panic!("Error, couldn't load edit template.\n{}", e))
-            .as_str()),
+        html::SUBMIT,
+        &context,
+        false,
+    )
+    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+
+    HttpResponse::Ok().content_type("text/html").body(result)
+}
+
+#[get("/blog/edit")]
+async fn blog_edit() -> impl Responder {
+    let mut context = Context::new();
+    context.insert("posts", &db::get_all_posts());
+    context.insert("username", &config::get_from_env("USERNAME", true));
+
+    // one-off render blog template with context
+    let result = Tera::one_off(
+        html::EDIT,
         &context,
         false,
     )
@@ -140,8 +143,6 @@ async fn blog_edit() -> impl Responder {
 async fn blog_edit_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl Responder {
     let (valid, id) = id_valid(post_id);
     if valid {
-        let root_path = config::get_from_env("ROOT_PATH", true);
-
         let mut post = db::get_post_by_id(id as i32);
 
         post.title = replace_br_tags(&post.title);
@@ -154,9 +155,7 @@ async fn blog_edit_by_id(web::Path(post_id): web::Path<std::string::String>) -> 
 
         // one-off render blog template with context
         let result = Tera::one_off(
-            &(std::fs::read_to_string(root_path + "/templates/post-edit.html")
-                .unwrap_or_else(|e| panic!("Error, couldn't load blog template.\n{}", e))
-                .as_str()),
+            html::POST_EDIT_FORM,
             &context,
             false,
         )
