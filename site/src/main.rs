@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
             .service(api::blog_delete_post)
             .service(fs::Files::new("/static", root_path + "/static"))
     })
-    .bind(String::from("localhost:") + &get_from_env("BIND_PORT", true))?
+    .bind("0.0.0.0:8000")?
     .run()
     .await
 }

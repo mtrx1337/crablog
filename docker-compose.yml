@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  crablog:
+    build: .
+    ports:
+        - 8000:8000
+    hostname: crablog
+    container_name: crablog
+    env_file: .env
+    volumes:
+      - ./content:/root/crablog/content
+volumes:
+  myapp:

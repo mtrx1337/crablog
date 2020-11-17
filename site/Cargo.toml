@@ -1,5 +1,5 @@
 [package]
-name = "rust-website"
+name = "crablog"
 version = "0.1.0"
 authors = ["Leonard Lorenz <dev@leonardlorenz.de>"]
 edition = "2018"
