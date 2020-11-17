@@ -13,7 +13,7 @@ cd crablog
 2. Set up your configuration file (see below)
 3. Build and run the docker container (Will compile from source and thus take a while)
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 ## Configuration environment file
