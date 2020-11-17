@@ -69,7 +69,7 @@ async fn blog() -> impl Responder {
     context.insert("posts", &posts);
     context.insert("username", &username);
     context.insert("sitetitle", &format!("{}' blog'", &username));
-    context.insert("sitedescription", &format!("Last 5 posts of {}' blog'", &username));
+    context.insert("sitedescription", &format!("Last 5 posts of {}' blog", &username));
 
     // one-off render blog template with context
     let result = Tera::one_off(
@@ -93,7 +93,7 @@ async fn blog_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl 
         context.insert("posts", &[&post]);
         context.insert("username", &username);
         context.insert("sitetitle", &post.title);
-        context.insert("sitedescription", &format!("Last 5 posts of {}' blog'", &username));
+        context.insert("sitedescription", &post.body);
 
         // one-off render blog template with context
         let result = Tera::one_off(
