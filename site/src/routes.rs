@@ -63,11 +63,13 @@ async fn root() -> impl Responder {
 #[get("/blog")]
 async fn blog() -> impl Responder {
     let posts = db::get_last_five_posts();
+    let username = config::get_from_env("USERNAME", true);
 
     let mut context = Context::new();
     context.insert("posts", &posts);
-    context.insert("username", &(config::get_from_env("USERNAME", true)));
-    context.insert("sitetitle", &(config::get_from_env("USERNAME", true) + "' blog"));
+    context.insert("username", &username);
+    context.insert("sitetitle", &format!("{}' blog'", &username));
+    context.insert("sitedescription", &format!("Last 5 posts of {}' blog'", &username));
 
     // one-off render blog template with context
     let result = Tera::one_off(
@@ -85,11 +87,13 @@ async fn blog_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl 
     let (valid, id) = id_valid(post_id);
     if valid {
         let post = db::get_post_by_id(id as i32);
+        let username = config::get_from_env("USERNAME", true);
 
         let mut context = Context::new();
         context.insert("posts", &[&post]);
-        context.insert("username", &(config::get_from_env("USERNAME", true)));
+        context.insert("username", &username);
         context.insert("sitetitle", &post.title);
+        context.insert("sitedescription", &format!("Last 5 posts of {}' blog'", &username));
 
         // one-off render blog template with context
         let result = Tera::one_off(

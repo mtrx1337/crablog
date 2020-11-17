@@ -29,6 +29,7 @@ pub const BLOG: &str = r#"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="{{ sitetitle }}" />
+    <meta property="og:description" content="{{ sitedescription }}" />
     <meta property="og:image" content="/static/site-image.png" />
 
     <title> {{ sitetitle }} </title>
