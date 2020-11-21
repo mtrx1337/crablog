@@ -1,6 +1,6 @@
 [package]
 name = "crablog"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Leonard Lorenz <dev@leonardlorenz.de>"]
 edition = "2018"
 
