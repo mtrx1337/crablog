@@ -48,8 +48,7 @@ async fn main() -> std::io::Result<()> {
         let mut tera = Tera::new(format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/templates/*").as_str()).unwrap();
         tera.autoescape_on(vec![".sql"]);
 
-        env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-
+        env_logger::Builder::from_env(Env::default().default_filter_or("info"));
 
         App::new()
             .data(tera)
@@ -65,7 +64,7 @@ async fn main() -> std::io::Result<()> {
             .service(api::blog_edit_post)
             .service(api::blog_hide_post)
             .service(api::blog_delete_post)
-            .service(fs::Files::new("/static", "../content/static"))
+            .service(fs::Files::new("/static", format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/static")))
             .wrap(Logger::new("%a %r %t"))
     })
     .bind(format!("0.0.0.0:{}", CONFIG_MAP.read().unwrap().get("BIND_PORT").unwrap()))?
