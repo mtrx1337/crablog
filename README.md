@@ -21,7 +21,7 @@ All configuration options are defined in .env, to be created in the same directo
 
 An example configuration:
 
-```bash
+```
 USERNAME=yourusername
 EMAIL=me@mydomain.tld
 BIND_PORT=8000
