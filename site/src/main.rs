@@ -21,6 +21,21 @@ pub static CONFIG_MAP: Lazy<RwLock<HashMap<String, String>>> = Lazy::new(|| {
     config.insert(String::from("USERNAME"), env::var("USERNAME").expect("USERNAME variable not set."));
     config.insert(String::from("EMAIL"), env::var("EMAIL").expect("EMAIL variable not set."));
     config.insert(String::from("BIND_PORT"), env::var("BIND_PORT").expect("BIND_PORT variable not set."));
+    if let Ok(acc) = env::var("GITHUB_ACCOUNT") {
+        config.insert(String::from("GITHUB_ACCOUNT"), acc.clone());
+    }
+    if let Ok(acc) = env::var("TWITTER_ACCOUNT") {
+        config.insert(String::from("TWITTER_ACCOUNT"), acc.clone());
+    }
+    if let Ok(acc) = env::var("MASTODON_ACCOUNT") {
+        config.insert(String::from("MASTODON_ACCOUNT"), acc.clone());
+    }
+    if let Ok(acc) = env::var("DISCORD_ACCOUNT") {
+        config.insert(String::from("DISCORD_ACCOUNT"), acc.clone());
+    }
+    if let Ok(acc) = env::var("REDDIT_ACCOUNT") {
+        config.insert(String::from("REDDIT_ACCOUNT"), acc.clone());
+    }
     RwLock::new(config)
 });
 

@@ -38,6 +38,21 @@ async fn root(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut context = Context::new();
     context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
     context.insert("email", CONFIG_MAP.read().unwrap().get("EMAIL").unwrap());
+    if let Some(acc) = CONFIG_MAP.read().unwrap().get("GITHUB_ACCOUNT") {
+        context.insert("github_account", acc);
+    }
+    if let Some(acc) = CONFIG_MAP.read().unwrap().get("TWITTER_ACCOUNT") {
+        context.insert("twitter_account", acc);
+    }
+    if let Some(acc) = CONFIG_MAP.read().unwrap().get("MASTODON_ACCOUNT") {
+        context.insert("mastodon_account", acc);
+    }
+    if let Some(acc) = CONFIG_MAP.read().unwrap().get("DISCORD_ACCOUNT") {
+        context.insert("discord_account", acc);
+    }
+    if let Some(acc) = CONFIG_MAP.read().unwrap().get("REDDIT_ACCOUNT") {
+        context.insert("reddit_account", acc);
+    }
 
     let result = tmpl.render("index.html", &context)
         .map_err(|e| error::ErrorInternalServerError(format!("Template error\n{}", e)))?;
