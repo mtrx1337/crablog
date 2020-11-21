@@ -1,3 +1,6 @@
 target
 .env
 db.sqlite3
+*.png
+*.jpg
+*.ico
