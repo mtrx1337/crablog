@@ -25,8 +25,15 @@ An example configuration:
 USERNAME=yourusername
 EMAIL=me@mydomain.tld
 BIND_PORT=8000
-ROOT_PATH=/path/to/template/directory/and/sqliteDB
 SUBMIT_TOKEN=Submit!123 # token needed for submitting
+GITHUB_ACCOUNT=usernam3
+TWITTER_ACCOUNT=usernam3
+MASTODON_ACCOUNT=usernam3@mastodon.social
+REDDIT_ACCOUNT=usernam3
+DISCORD_ACCOUNT=usernam3
+
+# only needed when not using a docker container
+ROOT_PATH=/path/to/template/directory/and/sqliteDB
 ```
 
 ## Routes
