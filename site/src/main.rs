@@ -9,7 +9,8 @@ extern crate serde_derive;
 extern crate tera;
 
 use actix_files as fs;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, middleware::Logger};
+use env_logger::Env;
 use tera::Tera;
 use std::{env, sync::RwLock, collections::HashMap};
 use once_cell::sync::Lazy;
@@ -47,6 +48,9 @@ async fn main() -> std::io::Result<()> {
         let mut tera = Tera::new(format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/templates/*").as_str()).unwrap();
         tera.autoescape_on(vec![".sql"]);
 
+        env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
+
         App::new()
             .data(tera)
             .service(routes::root)
@@ -62,6 +66,7 @@ async fn main() -> std::io::Result<()> {
             .service(api::blog_hide_post)
             .service(api::blog_delete_post)
             .service(fs::Files::new("/static", "../content/static"))
+            .wrap(Logger::new("%a %r %t"))
     })
     .bind(format!("0.0.0.0:{}", CONFIG_MAP.read().unwrap().get("BIND_PORT").unwrap()))?
     .run()
