@@ -39,6 +39,7 @@ pub const BLOG: &str = r#"
 
   <body>
     <h1><a href="/blog" class="post-link" style="text-decoration:none;color:black;">{{ username }}' blog</a></h1>
+    <p style="text-align: right">All Posts</p>
     <ul>
       {% for post in posts %}
       <article>

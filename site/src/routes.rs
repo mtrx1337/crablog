@@ -1,18 +1,8 @@
-use crate::config;
 use crate::db;
-use crate::html;
 
-use actix_web::{get, http::StatusCode, web, HttpResponse, Responder};
-use tera::{Context, Tera};
-
-/// authorizes a request by comparing it to the SUBMIT_TOKEN environment variable
-pub fn authorized(form_token: &str) -> bool {
-    let token = config::get_from_env("SUBMIT_TOKEN", true);
-    if token == form_token {
-        return true;
-    }
-    false
-}
+use actix_web::{get, http::StatusCode, web, HttpResponse, Error, error};
+use tera::Context;
+use super::CONFIG_MAP;
 
 /// tests if the post id is a valid i32 integer bigger than zero
 /// assert(!(id_valid("2147483648").0))
@@ -44,107 +34,90 @@ pub fn replace_br_tags(x: &str) -> String {
 }
 
 #[get("/")]
-async fn root() -> impl Responder {
+async fn root(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut context = Context::new();
+    context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
+    context.insert("email", CONFIG_MAP.read().unwrap().get("EMAIL").unwrap());
 
-    context.insert("username", &config::get_from_env("USERNAME", true));
-    context.insert("email", &config::get_from_env("EMAIL", true));
+    let result = tmpl.render("index.html", &context)
+        .map_err(|e| error::ErrorInternalServerError(format!("Template error\n{}", e)))?;
 
-    let result = Tera::one_off(
-        html::INDEX,
-        &context,
-        false,
-    )
-    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
-
-    HttpResponse::Ok().content_type("text/html").body(result)
+    Ok(HttpResponse::Ok().content_type("text/html").body(result))
 }
 
 #[get("/blog")]
-async fn blog() -> impl Responder {
+async fn blog(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let posts = db::get_last_five_posts();
-    let username = config::get_from_env("USERNAME", true);
 
     let mut context = Context::new();
     context.insert("posts", &posts);
-    context.insert("username", &username);
-    context.insert("sitetitle", &format!("{}' blog'", &username));
-    context.insert("sitedescription", &format!("Last 5 posts of {}' blog", &username));
+    context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
 
-    // one-off render blog template with context
-    let result = Tera::one_off(
-        html::BLOG,
-        &context,
-        false,
-    )
-    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+    let result = tmpl.render("blog.html", &context)
+        .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
-    HttpResponse::Ok().content_type("text/html").body(result)
+    Ok(HttpResponse::Ok().content_type("text/html").body(result))
+}
+
+#[get("/blog/all")]
+async fn blog_all(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
+    let posts = db::get_all_posts();
+
+    let mut context = Context::new();
+    context.insert("posts", &posts);
+    context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
+
+    let result = tmpl.render("blog-all-posts.html", &context)
+        .map_err(|_| error::ErrorInternalServerError("Template error"))?;
+
+    Ok(HttpResponse::Ok().content_type("text/html").body(result))
 }
 
 #[get("/blog/id/{post_id}")]
-async fn blog_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl Responder {
+async fn blog_by_id(tmpl: web::Data<tera::Tera>, web::Path(post_id): web::Path<std::string::String>) -> Result<HttpResponse, Error> {
     let (valid, id) = id_valid(post_id);
     if valid {
         let post = db::get_post_by_id(id as i32);
-        let username = config::get_from_env("USERNAME", true);
 
         let mut context = Context::new();
-        context.insert("posts", &[&post]);
-        context.insert("username", &username);
-        context.insert("sitetitle", &post.title);
-        context.insert("sitedescription", &post.body);
+        context.insert("post", &post);
+        context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
 
-        // one-off render blog template with context
-        let result = Tera::one_off(
-            html::BLOG,
-            &context,
-            false,
-        )
-        .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+        let result = tmpl.render("blog-by-id.html", &context)
+            .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
-        return HttpResponse::Ok().content_type("text/html").body(result);
+        return Ok(HttpResponse::Ok().content_type("text/html").body(result))
     } else {
-        return HttpResponse::new(StatusCode::NOT_FOUND);
+        return Ok(HttpResponse::new(StatusCode::NOT_FOUND))
     }
 }
 
 #[get("/blog/submit")]
-async fn blog_submit() -> impl Responder {
+async fn blog_submit(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut context = Context::new();
     context.insert("title", "");
     context.insert("body", "");
 
-    // one-off render blog template with context
-    let result = Tera::one_off(
-        html::SUBMIT,
-        &context,
-        false,
-    )
-    .unwrap_or_else(|e| panic!("Error, couldn't render blog template.\n{}", e));
+    let result = tmpl.render("submit.html", &context)
+        .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
-    HttpResponse::Ok().content_type("text/html").body(result)
+    return Ok(HttpResponse::Ok().content_type("text/html").body(result))
 }
 
 #[get("/blog/edit")]
-async fn blog_edit() -> impl Responder {
+async fn blog_edit(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut context = Context::new();
     context.insert("posts", &db::get_all_posts());
-    context.insert("username", &config::get_from_env("USERNAME", true));
+    context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
 
-    // one-off render blog template with context
-    let result = Tera::one_off(
-        html::EDIT,
-        &context,
-        false,
-    )
-    .unwrap_or_else(|e| panic!("Error, couldn't render submit template.\n{}", e));
+    let result = tmpl.render("edit.html", &context)
+        .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
-    return HttpResponse::Ok().content_type("text/html").body(result);
+    Ok(HttpResponse::Ok().content_type("text/html").body(result))
 }
 
 #[get("/blog/edit/{post_id}")]
-async fn blog_edit_by_id(web::Path(post_id): web::Path<std::string::String>) -> impl Responder {
+async fn blog_edit_by_id(tmpl: web::Data<tera::Tera>, web::Path(post_id): web::Path<std::string::String>) -> Result<HttpResponse, Error> {
     let (valid, id) = id_valid(post_id);
     if valid {
         let mut post = db::get_post_by_id(id as i32);
@@ -157,16 +130,11 @@ async fn blog_edit_by_id(web::Path(post_id): web::Path<std::string::String>) -> 
         context.insert("body", &post.body);
         context.insert("id", &id);
 
-        // one-off render blog template with context
-        let result = Tera::one_off(
-            html::POST_EDIT_FORM,
-            &context,
-            false,
-        )
-        .unwrap_or_else(|e| panic!("Error, couldn't render submit template.\n{}", e));
+        let result = tmpl.render("edit-form.html", &context)
+            .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
-        return HttpResponse::Ok().content_type("text/html").body(result);
+        Ok(HttpResponse::Ok().content_type("text/html").body(result))
     } else {
-        return HttpResponse::new(StatusCode::UNAUTHORIZED);
+        Ok(HttpResponse::new(StatusCode::UNAUTHORIZED))
     }
 }

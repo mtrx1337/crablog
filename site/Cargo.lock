@@ -568,6 +568,7 @@ dependencies = [
  "chrono",
  "diesel 1.4.5",
  "diesel_codegen",
+ "once_cell",
  "serde",
  "serde_derive",
  "serde_json",

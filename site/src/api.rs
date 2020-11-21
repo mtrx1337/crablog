@@ -1,7 +1,8 @@
 use crate::db::*;
-use crate::routes::{authorized, id_valid, replace_newlines};
+use crate::routes::{id_valid, replace_newlines};
 use actix_web::{get, http::StatusCode, post, web, web::Form, HttpResponse, Responder};
 use serde::Deserialize;
+use super::CONFIG_MAP;
 
 #[derive(Deserialize)]
 struct NewPostForm {
@@ -17,7 +18,7 @@ struct BlogActionForm {
 
 #[post("/api/blog/create")]
 async fn blog_create_post(form: Form<NewPostForm>) -> impl Responder {
-    if authorized(&form.token) {
+    if *CONFIG_MAP.read().unwrap().get("SUBMIT_TOKEN").unwrap() == form.token {
         create_post(&form.title.as_str(), replace_newlines(&form.body).as_str());
         println!("New blog post created.");
     } else {
@@ -35,7 +36,7 @@ async fn blog_edit_post(
     form: Form<NewPostForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && authorized(&form.token) {
+    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
         edit_post_by_id(
             id as i32,
             &form.title.as_str(),
@@ -58,7 +59,7 @@ async fn blog_delete_post(
     form: Form<BlogActionForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && authorized(&form.token) {
+    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
         println!("Deleted post: {}", id);
         delete_post_by_id(id as i32);
     } else {
@@ -77,7 +78,7 @@ async fn blog_hide_post(
     form: Form<BlogActionForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && authorized(&form.token) {
+    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
         println!("Hid post: {}", id);
         hide_post_by_id(id as i32);
     } else {
