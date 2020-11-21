@@ -79,6 +79,10 @@ async fn blog_by_id(tmpl: web::Data<tera::Tera>, web::Path(post_id): web::Path<s
     if valid {
         let post = db::get_post_by_id(id as i32);
 
+        if !post.published {
+            return Ok(HttpResponse::new(StatusCode::UNAUTHORIZED))
+        }
+
         let mut context = Context::new();
         context.insert("post", &post);
         context.insert("username", CONFIG_MAP.read().unwrap().get("USERNAME").unwrap());
