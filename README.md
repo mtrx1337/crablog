@@ -7,10 +7,16 @@ Pure rust. Built with actix, diesel, tera, serde and sqlite3.
 1. Clone the repository
 ```bash
 git clone https://github.com/leonardlorenz/crablog
-cd crablog
+cd crablog/site
 ```
-2. Set up your configuration file (see below)
-3. Build and run the docker container (Will compile from source and thus take a while)
+2. Install diesel and create a database
+```bash
+cargo install diesel_cli
+diesel setup --database-url ../content/db.sqlite3
+diesel migration run --database-url ../content/db.sqlite3
+```
+3. Set up your configuration file (see below)
+4. Build and run the docker container (Will compile from source and thus take a while)
 ```bash
 docker-compose up -d
 ```
