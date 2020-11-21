@@ -1,7 +1,6 @@
 # Crablog
 
 Pure rust. Built with actix, diesel, tera, serde and sqlite3.
-Environment variables are documented in [variables.md](./doc/environment.md)
 
 ## Build instructions using docker
 
@@ -26,5 +25,6 @@ An example configuration:
 USERNAME=yourusername
 EMAIL=me@mydomain.tld
 BIND_PORT=8000
+ROOT_PATH=/path/to/template/directory/and/sqliteDB
 SUBMIT_TOKEN=Submit!123 # token needed for submitting
 ```
