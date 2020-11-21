@@ -36,7 +36,7 @@ async fn blog_edit_post(
     form: Form<NewPostForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
+    if valid && *CONFIG_MAP.read().unwrap().get("SUBMIT_TOKEN").unwrap() == form.token {
         edit_post_by_id(
             id as i32,
             &form.title.as_str(),
@@ -59,7 +59,7 @@ async fn blog_delete_post(
     form: Form<BlogActionForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
+    if valid && *CONFIG_MAP.read().unwrap().get("SUBMIT_TOKEN").unwrap() == form.token {
         println!("Deleted post: {}", id);
         delete_post_by_id(id as i32);
     } else {
@@ -78,7 +78,7 @@ async fn blog_hide_post(
     form: Form<BlogActionForm>,
 ) -> impl Responder {
     let (valid, id) = id_valid(post_id);
-    if valid && *CONFIG_MAP.read().unwrap().get("AUTH_TOKEN").unwrap() == form.token {
+    if valid && *CONFIG_MAP.read().unwrap().get("SUBMIT_TOKEN").unwrap() == form.token {
         println!("Hid post: {}", id);
         hide_post_by_id(id as i32);
     } else {

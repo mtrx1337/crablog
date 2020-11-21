@@ -29,8 +29,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
 
-        let tera =
-            Tera::new(format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/templates/*").as_str()).unwrap();
+        let mut tera = Tera::new(format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/templates/*").as_str()).unwrap();
+        tera.autoescape_on(vec![".sql"]);
 
         App::new()
             .data(tera)
