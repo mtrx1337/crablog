@@ -28,3 +28,16 @@ BIND_PORT=8000
 ROOT_PATH=/path/to/template/directory/and/sqliteDB
 SUBMIT_TOKEN=Submit!123 # token needed for submitting
 ```
+
+## Routes
+
+- / site welcome
+- /blog shows the last 5 posts
+- /blog/id/<id> shows a single post by id
+- /blog/all shows all posts
+- /blog/submit set your submit token and create posts
+- /blog/edit/<id> edit, delete or hide posts
+  
+**API Routes**
+
+- /api/blog/posts returns all posts as json
