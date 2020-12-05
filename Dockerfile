@@ -13,6 +13,6 @@ COPY ./site /root/crablog
 WORKDIR /root/crablog
 
 # install crablog
-RUN cargo install --path . --root /
+RUN cargo install --path . --root / -j $(nproc)
 
 CMD ["crablog"]
