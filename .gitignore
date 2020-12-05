@@ -3,4 +3,4 @@ target
 db.sqlite3
 *.png
 *.jpg
-*.ico
+./content/static/favicon.ico
