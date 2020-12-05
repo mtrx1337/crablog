@@ -17,7 +17,9 @@
     <p style="text-align: right"><a href="/">Home</a> <a href="/blog">Last 5 Posts</a> <a href="/blog/all">All Posts</a></p>
     <ul>
       <article>
-        <a href="/blog/id/{{ post.id }}" class="post-link">[link]</a>
+        <div>
+          <a href="/blog/id/{{ post.id }}" class="post-link">[link]</a>
+        </div>
         <div class="post-content">
           <h2 class="post-title">{{ post.title }}</h2>
           <sub class="post-publish-date"> {{ post.publish_date | date(format="%Y-%m-%d at %H:%M") }}</sub>
