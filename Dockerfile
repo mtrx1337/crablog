@@ -1,18 +1,21 @@
-FROM rustlang/rust:nightly
+FROM rust:alpine as build
+
+ENV RUSTFLAGS='-C target-feature=-crt-static'
+
+WORKDIR /app
+COPY ./site .
+RUN apk add --no-cache musl-dev sqlite-dev
+RUN cargo install --path .
+
+FROM alpine:latest
+
+COPY --from=build /usr/local/cargo/bin/crablog /app/crablog
+WORKDIR /app
+RUN apk add --no-cache libgcc sqlite-libs
+
+ENV ROOT_PATH=/app/content
+ENV DATABASE_URL=${ROOT_PATH}/db.sqlite3
 
 EXPOSE 8000
 
-ENV ROOT_PATH=/root/crablog/content
-ENV DATABASE_URL=${ROOT_PATH}/db.sqlite3
-
-RUN mkdir -p /root/crablog
-
-COPY ./site /root/crablog
-
-# set up database
-WORKDIR /root/crablog
-
-# install crablog
-RUN cargo install --path . --root / -j $(nproc)
-
-CMD ["crablog"]
+CMD ["./crablog"]
