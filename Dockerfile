@@ -5,7 +5,7 @@ ENV RUSTFLAGS='-C target-feature=-crt-static'
 WORKDIR /app
 COPY ./site .
 RUN apk add --no-cache musl-dev sqlite-dev
-RUN cargo install --path .
+RUN cargo install --path . -j $(nproc)
 
 FROM alpine:latest
 
