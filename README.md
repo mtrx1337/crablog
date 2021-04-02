@@ -11,7 +11,7 @@ cd crablog/site
 ```
 2. Install diesel and create a database
 ```bash
-cargo install diesel_cli
+cargo install diesel_cli --no-default-features --features "sqlite"
 diesel setup --database-url ../content/db.sqlite3
 diesel migration run --database-url ../content/db.sqlite3
 ```
