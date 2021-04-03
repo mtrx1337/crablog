@@ -9,50 +9,89 @@ extern crate serde_derive;
 extern crate tera;
 
 use actix_files as fs;
-use actix_web::{App, HttpServer, middleware::Logger};
+use actix_web::{middleware::Logger, App, HttpServer};
 use env_logger::Env;
-use tera::Tera;
-use std::{env, sync::RwLock, collections::HashMap};
 use once_cell::sync::Lazy;
+use std::{collections::HashMap, env, sync::RwLock};
+use tera::Tera;
 
 pub static CONFIG_MAP: Lazy<RwLock<HashMap<String, String>>> = Lazy::new(|| {
     let mut config: HashMap<String, String> = HashMap::new();
-    config.insert(String::from("SUBMIT_TOKEN"), env::var("SUBMIT_TOKEN").expect("SUBMIT_TOKEN variable not set."));
-    config.insert(String::from("ROOT_PATH"), env::var("ROOT_PATH").expect("ROOT_PATH variable not set."));
-    config.insert(String::from("USERNAME"), env::var("USERNAME").expect("USERNAME variable not set."));
-    config.insert(String::from("EMAIL"), env::var("EMAIL").expect("EMAIL variable not set."));
-    config.insert(String::from("BIND_PORT"), env::var("BIND_PORT").expect("BIND_PORT variable not set."));
-    if let Ok(acc) = env::var("GITHUB_ACCOUNT") {
-        config.insert(String::from("GITHUB_ACCOUNT"), acc.clone());
+
+    let required_env_vars = [
+        "SUBMIT_TOKEN",
+        "ROOT_PATH",
+        "USERNAME",
+        "EMAIL",
+        "BIND_PORT",
+    ];
+
+    let optional_env_vars = [
+        "GITHUB_ACCOUNT",
+        "TWITTER_ACCOUNT",
+        "MASTODON_ACCOUNT",
+        "DISCORD_ACCOUNT",
+        "REDDIT_ACCOUNT",
+    ];
+
+    // Test if variable is set. If not, panic.
+    let mut insert_required_env = |env: &str| {
+        let env_string = String::from(env);
+        config.insert(
+            env_string.clone(), // env var name
+            env::var(env_string).expect(format!("`{}` variable not set.", env).as_str()), // env var content
+        )
+    };
+
+    for var in required_env_vars.iter() {
+        insert_required_env(var);
     }
-    if let Ok(acc) = env::var("TWITTER_ACCOUNT") {
-        config.insert(String::from("TWITTER_ACCOUNT"), acc.clone());
+
+    // Test if variable is set. If it is insert into config.
+    let mut insert_optional_env = |env: &str| {
+        if let Ok(var_content) = env::var(String::from(env)) {
+            config.insert(String::from(env), var_content.clone());
+        }
+    };
+
+    for var in optional_env_vars.iter() {
+        insert_optional_env(var);
     }
-    if let Ok(acc) = env::var("MASTODON_ACCOUNT") {
-        config.insert(String::from("MASTODON_ACCOUNT"), acc.clone());
-    }
-    if let Ok(acc) = env::var("DISCORD_ACCOUNT") {
-        config.insert(String::from("DISCORD_ACCOUNT"), acc.clone());
-    }
-    if let Ok(acc) = env::var("REDDIT_ACCOUNT") {
-        config.insert(String::from("REDDIT_ACCOUNT"), acc.clone());
-    }
+
+    // Print some info about the current configuration
+    println!("Submit token = `{}`", config.get("SUBMIT_TOKEN").unwrap());
+    println!(
+        "Current working directory = `{}`",
+        env::current_dir().unwrap().to_str().unwrap()
+    );
+    println!("Root path = `{}`", config.get("ROOT_PATH").unwrap());
+    println!(
+        "Template path = `{}/templates/*`",
+        config.get("ROOT_PATH").unwrap()
+    );
+    println!("Launching on 0.0.0.0:{}", config.get("BIND_PORT").unwrap());
     RwLock::new(config)
 });
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     HttpServer::new(|| {
-
-        let mut tera = Tera::new(format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/templates/*").as_str()).unwrap();
+        let mut tera = Tera::new(
+            format!(
+                "{}{}",
+                CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(),
+                "/templates/*"
+            )
+            .as_str(),
+        )
+        .unwrap();
         tera.autoescape_on(vec![".sql"]);
 
         env_logger::Builder::from_env(Env::default().default_filter_or("info"));
 
         App::new()
             .data(tera)
-            .service(routes::root)
+            .service(routes::about)
             .service(routes::blog)
             .service(routes::blog_all)
             .service(routes::blog_by_id)
@@ -64,10 +103,20 @@ async fn main() -> std::io::Result<()> {
             .service(api::blog_edit_post)
             .service(api::blog_hide_post)
             .service(api::blog_delete_post)
-            .service(fs::Files::new("/static", format!("{}{}", CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(), "/static")))
+            .service(fs::Files::new(
+                "/static",
+                format!(
+                    "{}{}",
+                    CONFIG_MAP.read().unwrap().get("ROOT_PATH").unwrap(),
+                    "/static"
+                ),
+            ))
             .wrap(Logger::new("%a %r %t"))
     })
-    .bind(format!("0.0.0.0:{}", CONFIG_MAP.read().unwrap().get("BIND_PORT").unwrap()))?
+    .bind(format!(
+        "0.0.0.0:{}",
+        CONFIG_MAP.read().unwrap().get("BIND_PORT").unwrap()
+    ))?
     .run()
     .await
 }

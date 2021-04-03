@@ -13,13 +13,16 @@
   </head>
 
   <body>
-    <h1><a href="/blog" class="post-link" style="text-decoration:none;color:black;">{{ username }}' blog</a></h1>
-    <p style="text-align: right"><a href="/">Home</a> <a href="/blog">Last 5 posts</a></p>
+    <h1><a href="/" class="post-link" style="text-decoration:none;color:black;">{{ username }}' blog</a></h1>
+    <p style="text-align: right">
+      <a href="/about">About</a>
+      <a href="/">Last 5 posts</a>
+    </p>
     <ul>
       {% for post in posts %}
       <article>
         <div>
-          <a href="/blog/id/{{ post.id }}" class="post-link">[link]</a>
+          <a href="/id/{{ post.id }}" class="post-link">[link]</a>
         </div>
         <div class="post-content">
           <h2 class="post-title">{{ post.title }}</h2>
