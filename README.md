@@ -23,10 +23,10 @@ docker-compose up -d
 
 ## Configuration environment file
 
-All configuration options are defined in .env, to be created in the same directory as this readme.
+All configuration options are defined in crablog.env, an example configuration is provided.
+When not using Docker you may have to add crablog.env to your startup script or define the variables there.
 
-An example configuration:
-
+`crablog.env`
 ```
 USERNAME=yourusername
 EMAIL=me@mydomain.tld
