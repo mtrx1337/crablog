@@ -27,7 +27,7 @@ All configuration options are defined in crablog.env, an example configuration i
 When not using Docker you may have to add crablog.env to your startup script or define the variables there.
 
 `crablog.env`
-```bash
+```
 USERNAME=yourusername
 EMAIL=me@mydomain.tld
 BIND_PORT=8000
@@ -55,6 +55,6 @@ ROOT_PATH=/path/to/template/directory/and/sqliteDB
   
 **API Routes**
 
-| Route          | Description               |
-| -------------- | ------------------------- |
-| api/blog/posts | returns all posts as json |
+| Route            | Description               |
+| ---------------- | ------------------------- |
+| `api/blog/posts` | returns all posts as json |
