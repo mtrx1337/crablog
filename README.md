@@ -44,14 +44,14 @@ ROOT_PATH=/path/to/template/directory/and/sqliteDB
 
 ## Routes
 
-| Route      | Description                                        |
-| ---------- | -------------------------------------------------- |
-| /          | shows the last 5 posts                             |
-| /id/<id>   | shows a single post by id                          |
-| /all       | shows all posts                                    |
-| /submit    | set your submit token and create posts             |
-| /edit/<id> | edit, delete or hide posts                         |
-| /about     | information about this blog, social media accounts |
+| Route        | Description                                        |
+| ------------ | -------------------------------------------------- |
+| `/`          | shows the last 5 posts                             |
+| `/id/<id>`   | shows a single post by id                          |
+| `/all`       | shows all posts                                    |
+| `/submit`    | set your submit token and create posts             |
+| `/edit/<id>` | edit, delete or hide posts                         |
+| `/about`     | information about this blog, social media accounts |
   
 **API Routes**
 
