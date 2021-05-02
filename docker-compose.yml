@@ -2,6 +2,7 @@ version: "3.0"
 services:
   crablog:
     build: .
+    image: mtrx1337/crablog
     ports:
         - 8000:8000
     hostname: crablog
