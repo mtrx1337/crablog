@@ -2,7 +2,7 @@
 
 Pure rust. Built with actix, diesel, tera, serde and sqlite3.
 
-## Build instructions using docker
+## Run instructions using docker
 
 1. Clone the repository
 ```bash
@@ -16,7 +16,7 @@ diesel setup --database-url ../content/db.sqlite3
 diesel migration run --database-url ../content/db.sqlite3
 ```
 3. Set up your configuration file (see below)
-4. Build and run the docker container (Will compile from source and thus take a while)
+4. Pull the image (or build from source) and run the docker container
 ```bash
 docker-compose up -d
 ```
