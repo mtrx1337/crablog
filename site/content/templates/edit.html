@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<meta property="og:title" content="Edit posts..." />
+<title>Edit posts...</title>
+{% endblock head %}
+
+{% block content %}
+<h1><a href="/" class="hidden-link">{{ username }} blog</a></h1>
+<h2>Edit posts</h2>
+<ul style="list-style: none;">
+  {% for post in posts %}
+  <li><a href="/edit/{{ post.id }}">{{ post.title }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock content %}
